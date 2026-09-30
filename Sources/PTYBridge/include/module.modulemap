@@ -1,0 +1,4 @@
+module PTYBridge {
+    header "PTYBridge.h"
+    export *
+}
