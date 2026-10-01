@@ -110,6 +110,8 @@ UTF-8, native input methods, ANSI colors/cursor movement, screen clearing, alter
 
 Mouse-wheel and trackpad scrolling are forwarded to programs that request xterm mouse input, including Codex. Ordinary shell output uses local scrollback. Hold Shift while scrolling to use local history when available. Full-screen applications manage their own history and scroll position. [Scrolling verification](docs/Terminal-Scrolling.md) records the fix and checks in Korean.
 
+The terminal history scrollbar stays visible, including when macOS normally hides scrollbars, and its mint thumb indicates the visible portion and current position. Programs such as Codex keep their transcript inside the application and do not report its length or position to Lilim. In that mode, the right rail shows up/down buttons instead of a position thumb, with “프로그램 내부 스크롤” in the footer. Hold a button to keep scrolling; mouse-wheel and trackpad scrolling still work.
+
 ![Explicitly opened tabs and Korean path and text output](docs/screenshots/terminal-tabs.png)
 
 The `문서` tab was explicitly opened from a favorite. The existing `Garden` tab remains, and a real shell prints the sample text file.

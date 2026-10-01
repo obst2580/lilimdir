@@ -12,6 +12,7 @@ final class TerminalSession: Identifiable {
     var pendingDirectory: URL?
     var navigationError: String?
     var fontSize: CGFloat = 13
+    var applicationScrollActive = false
     @ObservationIgnored let buffer = TerminalBuffer()
     @ObservationIgnored private let process = PTYProcess()
     @ObservationIgnored private var didStart = false

@@ -75,7 +75,13 @@ struct TerminalPane: View {
                     } ?? "\(ProcessInfo.processInfo.environment["SHELL"].map { URL(fileURLWithPath: $0).lastPathComponent } ?? "zsh") · 로그인 셸")
                         .lineLimit(1).truncationMode(.middle)
                     Spacer()
-                    Text("⌘↩ 터미널 포커스")
+                    if session.applicationScrollActive {
+                        Label("프로그램 내부 스크롤", systemImage: "arrow.up.arrow.down")
+                            .foregroundStyle(Theme.terminalAccent)
+                            .help("오른쪽 위·아래 버튼으로 이동합니다. 프로그램이 전체 기록 길이와 현재 위치를 제공하지 않아 위치 막대는 표시할 수 없습니다.")
+                    } else {
+                        Text("⌘↩ 터미널 포커스")
+                    }
                 }.font(.system(size: 10)).foregroundStyle(.secondary)
                     .padding(.horizontal, 16).padding(.vertical, 10)
                     .background(Theme.terminalSecondary)

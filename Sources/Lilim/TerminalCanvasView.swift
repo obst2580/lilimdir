@@ -108,9 +108,15 @@ final class TerminalCanvasView: NSView, @MainActor NSTextInputClient {
         var modifiers = 0
         if event.modifierFlags.contains(.option) { modifiers |= 8 }
         if event.modifierFlags.contains(.control) { modifiers |= 16 }
-        if let input = buffer.scrollInput(up: up, column: point.column, row: row, modifiers: modifiers) {
-            session.send(Array(repeating: input, count: steps).flatMap { $0 })
-        }
+        scrollApplication(up: up, steps: steps, column: point.column, row: row, modifiers: modifiers)
+        return true
+    }
+
+    @discardableResult
+    func scrollApplication(up: Bool, steps: Int, column: Int = 0, row: Int = 0, modifiers: Int = 0) -> Bool {
+        guard steps > 0, let session,
+              let input = session.buffer.scrollInput(up: up, column: column, row: row, modifiers: modifiers) else { return false }
+        session.send(Array(repeating: input, count: min(100, steps)).flatMap { $0 })
         return true
     }
 
