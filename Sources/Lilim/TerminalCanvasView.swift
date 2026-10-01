@@ -10,6 +10,8 @@ final class TerminalCanvasView: NSView, @MainActor NSTextInputClient {
     private var selectionStart: (line: Int, column: Int)?
     private var selectionEnd: (line: Int, column: Int)?
     private var markedText = ""
+    private var wheelRemainder: CGFloat = 0
+    private var wheelMode = -1
     private let background = Theme.terminalBackgroundColor
     private let foreground = Theme.terminalTextColor
     private let palette: [NSColor] = [
@@ -77,6 +79,40 @@ final class TerminalCanvasView: NSView, @MainActor NSTextInputClient {
 
     override func becomeFirstResponder() -> Bool { needsDisplay = true; return true }
     override func resignFirstResponder() -> Bool { unmarkText(); needsDisplay = true; return true }
+
+    // NSScrollView owns wheel dispatch. It calls this before scrolling local history.
+    func handleScrollWheel(_ event: NSEvent) -> Bool {
+        guard let session else { return false }
+        let buffer = session.buffer
+        let mode = buffer.mouseTrackingMode + (buffer.alternateScreen ? 10_000 : 0)
+            + (buffer.sgrMouse ? 20_000 : 0) + (buffer.alternateScroll ? 40_000 : 0)
+        if mode != wheelMode || event.phase.contains(.began) {
+            wheelRemainder = 0; wheelMode = mode
+        }
+        // Shift keeps the ordinary terminal-history gesture available to the user.
+        guard buffer.handlesScrollInput, !event.modifierFlags.contains(.shift) else {
+            wheelRemainder = 0
+            return false
+        }
+        let delta = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY / cellHeight : event.scrollingDeltaY
+        guard delta.isFinite else { wheelRemainder = 0; return true }
+        if delta == 0 { return true }
+        if delta * wheelRemainder < 0 { wheelRemainder = 0 }
+        wheelRemainder = min(30, max(-30, wheelRemainder + delta))
+        let steps = Int(abs(wheelRemainder))
+        guard steps > 0 else { return true }
+        let up = wheelRemainder > 0
+        wheelRemainder -= CGFloat(steps) * (up ? 1 : -1)
+        let point = position(for: event)
+        let row = point.line - (buffer.alternateScreen ? 0 : buffer.scrollback.count)
+        var modifiers = 0
+        if event.modifierFlags.contains(.option) { modifiers |= 8 }
+        if event.modifierFlags.contains(.control) { modifiers |= 16 }
+        if let input = buffer.scrollInput(up: up, column: point.column, row: row, modifiers: modifiers) {
+            session.send(Array(repeating: input, count: steps).flatMap { $0 })
+        }
+        return true
+    }
 
     override func keyDown(with event: NSEvent) {
         guard let session else { return }

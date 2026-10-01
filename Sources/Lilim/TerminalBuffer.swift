@@ -13,6 +13,9 @@ final class TerminalBuffer {
     private(set) var bracketedPaste = false
     private(set) var applicationCursor = false
     private(set) var alternateScreen = false
+    private(set) var mouseTrackingMode = 0
+    private(set) var sgrMouse = false
+    private(set) var alternateScroll = false
     var titleChanged: ((String) -> Void)?
     var directoryChanged: ((String) -> Void)?
     var respond: (([UInt8]) -> Void)?
@@ -39,6 +42,25 @@ final class TerminalBuffer {
 
     var allLines: [[TerminalCell]] { alternateScreen ? screen : scrollback + screen }
     var cursorLine: Int { (alternateScreen ? 0 : scrollback.count) + cursorY }
+
+    var handlesScrollInput: Bool { mouseTrackingMode != 0 || (alternateScreen && alternateScroll) }
+
+    // Xterm wheel presses have no release event. Coordinates are one-based screen cells.
+    func scrollInput(up: Bool, column: Int, row: Int, modifiers: Int = 0) -> [UInt8]? {
+        if mouseTrackingMode != 0 {
+            let x = min(columns - 1, max(0, column)) + 1
+            let y = min(rows - 1, max(0, row)) + 1
+            let button = (up ? 64 : 65) | (modifiers & 28)
+            if sgrMouse { return Array("\u{1b}[<\(button);\(x);\(y)M".utf8) }
+            // The original byte protocol cannot represent cells beyond 223.
+            guard x <= 223, y <= 223 else { return [] }
+            return [27, 91, 77, UInt8(button + 32), UInt8(x + 32), UInt8(y + 32)]
+        }
+        if alternateScreen && alternateScroll {
+            return Array(((applicationCursor ? "\u{1b}O" : "\u{1b}[") + (up ? "A" : "B")).utf8)
+        }
+        return nil
+    }
 
     func resize(columns newColumns: Int, rows newRows: Int) {
         let width = max(10, newColumns), height = max(3, newRows)
@@ -204,6 +226,7 @@ final class TerminalBuffer {
         case 99:
             style = TerminalCell(); screen = Array(repeating: blankLine(), count: rows)
             cursorX = 0; cursorY = 0; wrapPending = false
+            mouseTrackingMode = 0; sgrMouse = false; alternateScroll = false
         default: break
         }
     }
@@ -254,6 +277,12 @@ final class TerminalBuffer {
                     if mode == 25 { cursorVisible = final == 104 }
                     if mode == 1 { applicationCursor = final == 104 }
                     if mode == 2004 { bracketedPaste = final == 104 }
+                    if mode == 1000 || mode == 1002 || mode == 1003 {
+                        if final == 104 { mouseTrackingMode = mode }
+                        else if mouseTrackingMode == mode { mouseTrackingMode = 0 }
+                    }
+                    if mode == 1006 { sgrMouse = final == 104 }
+                    if mode == 1007 { alternateScroll = final == 104 }
                     if mode == 1049 || mode == 47 || mode == 1047 { switchScreen(final == 104) }
                 }
             }

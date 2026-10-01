@@ -10,6 +10,7 @@ struct Checks {
         try terminalScreen()
         try terminalKoreanGraphemes()
         try terminalResize()
+        try TerminalScrollChecks.run()
         try await directories()
         try await FileOperationChecks.run()
         try await actualPTY()

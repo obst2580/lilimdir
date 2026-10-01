@@ -4,7 +4,7 @@ import SwiftUI
 @MainActor
 final class TerminalHostView: NSView {
     let canvas: TerminalCanvasView
-    private let scrollView = NSScrollView()
+    private let scrollView = TerminalScrollView()
     private weak var session: TerminalSession?
 
     init(session: TerminalSession) {
@@ -44,6 +44,14 @@ final class TerminalHostView: NSView {
         canvas.setAccessibilityValue(session.buffer.text(from: (max(0, session.buffer.allLines.count - 40), 0),
                                                         to: (session.buffer.allLines.count - 1, session.buffer.columns - 1)))
         if followOutput { canvas.scroll(NSPoint(x: 0, y: max(0, height - visible.height))) }
+    }
+}
+
+@MainActor
+final class TerminalScrollView: NSScrollView {
+    override func scrollWheel(with event: NSEvent) {
+        if let canvas = documentView as? TerminalCanvasView, canvas.handleScrollWheel(event) { return }
+        super.scrollWheel(with: event)
     }
 }
 

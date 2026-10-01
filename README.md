@@ -108,6 +108,8 @@ Other tabs keep running. The login shell uses an executable `$SHELL`, falling ba
 
 UTF-8, native input methods, ANSI colors/cursor movement, screen clearing, alternate screens, bracketed paste, text selection/copy and 5,000 lines of scrollback are supported. Decomposed Hangul folder names display as composed syllables occupying two cells, while preserving original paths and copied text.
 
+Mouse-wheel and trackpad scrolling are forwarded to programs that request xterm mouse input, including Codex. Ordinary shell output uses local scrollback. Hold Shift while scrolling to use local history when available. Full-screen applications manage their own history and scroll position. [Scrolling verification](docs/Terminal-Scrolling.md) records the fix and checks in Korean.
+
 ![Explicitly opened tabs and Korean path and text output](docs/screenshots/terminal-tabs.png)
 
 The `문서` tab was explicitly opened from a favorite. The existing `Garden` tab remains, and a real shell prints the sample text file.
