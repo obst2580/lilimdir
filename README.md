@@ -108,6 +108,8 @@ Other tabs keep running. The login shell uses an executable `$SHELL`, falling ba
 
 UTF-8, native input methods, ANSI colors/cursor movement, screen clearing, alternate screens, bracketed paste, text selection/copy and 5,000 lines of scrollback are supported. Decomposed Hangul folder names display as composed syllables occupying two cells, while preserving original paths and copied text.
 
+Enter submits a command or prompt. In CLI prompt editors such as Claude Code and Codex, `Shift+Enter` inserts a newline without submitting. `Option+Enter` is also sent as Meta-Enter for programs that support it. This works with Return and keypad Enter; active input-method composition continues through the native input method. Other programs determine how they handle these keys. See [terminal input verification](docs/Terminal-Input.md) (Korean).
+
 Mouse-wheel and trackpad scrolling are forwarded to programs that request xterm mouse input, including Codex. Ordinary shell output uses local scrollback. Hold Shift while scrolling to use local history when available. Full-screen applications manage their own history and scroll position. [Scrolling verification](docs/Terminal-Scrolling.md) records the fix and checks in Korean.
 
 The terminal history scrollbar stays visible, including when macOS normally hides scrollbars, and its mint thumb indicates the visible portion and current position. Programs such as Codex keep their transcript inside the application and do not report its length or position to Lilim. In that mode, the right rail shows up/down buttons instead of a position thumb, with “프로그램 내부 스크롤” in the footer. Hold a button to keep scrolling; mouse-wheel and trackpad scrolling still work.
@@ -172,6 +174,7 @@ Space or `⌘Y` opens Quick Look. Gallery (`⌘4`) previews a selected file abov
 | Hidden files / refresh | `⌘⇧.` / `⌘R` |
 | Toggle sidebar | `⌘⌥S` |
 | New terminal tab / focus terminal | `⌘T` / `⌘Return` |
+| Newline in Claude Code / Codex | `⇧Return` |
 | Terminal font larger / smaller / reset | `⌘+` / `⌘-` / `⌘0` |
 
 ## Current limits

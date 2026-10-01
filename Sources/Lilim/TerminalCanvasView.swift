@@ -143,7 +143,7 @@ final class TerminalCanvasView: NSView, @MainActor NSTextInputClient {
         case 117: sequence = "\u{1b}[3~"
         case 53: sequence = "\u{1b}"
         case 48: sequence = modifiers.contains(.shift) ? "\u{1b}[Z" : "\t"
-        case 36, 76: sequence = hasMarkedText() ? nil : "\r"
+        case 36, 76: sequence = hasMarkedText() ? nil : TerminalKeyInput.enterSequence(modifiers: modifiers)
         case 51: sequence = hasMarkedText() ? nil : "\u{7f}"
         default: sequence = nil
         }

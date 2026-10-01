@@ -11,6 +11,7 @@ struct Checks {
         try terminalKoreanGraphemes()
         try terminalResize()
         try TerminalScrollChecks.run()
+        try TerminalKeyInputChecks.run()
         try await directories()
         try await FileOperationChecks.run()
         try await actualPTY()
